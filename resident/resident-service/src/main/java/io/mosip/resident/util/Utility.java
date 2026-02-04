@@ -934,16 +934,13 @@ public class Utility {
 
 	public <T> T getIdentityData(String id, Class<?> responseType) throws ApisResourceAccessException {
 		Map<String, String> pathSegments = new HashMap<String, String>();
-		pathSegments.put("id", id + "@nin");
+		pathSegments.put("id", id);
 
 		List<String> queryParamName = new ArrayList<String>();
 		queryParamName.add("type");
-		queryParamName.add("idType");
 		 
 		List<Object> queryParamValue = new ArrayList<>();
-		queryParamValue.add(RETRIEVE_IDENTITY_PARAM_TYPE_DEMO);
-		queryParamValue.add("handle");
-		
+		queryParamValue.add(RETRIEVE_IDENTITY_PARAM_TYPE_DEMO);		
 		return restClientWithSelfTOkenRestTemplate.getApi(ApiName.IDREPO_IDENTITY_URL,
 				pathSegments, queryParamName, queryParamValue, responseType);
 	}
