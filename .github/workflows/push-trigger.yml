@@ -21,6 +21,7 @@ on:
       - develop
       - MOSIP*
       - tf_nira_dev
+      - verify
 
 jobs:
   build-maven-resident-services:
