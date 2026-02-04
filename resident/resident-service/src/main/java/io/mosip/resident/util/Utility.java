@@ -929,10 +929,13 @@ public class Utility {
 
 	@Cacheable(value = "identityMapCache", key = "#accessToken")
 	public <T> T getCachedIdentityData(String id, String accessToken, Class<?> responseType) throws ApisResourceAccessException {
+		if(id.length() == 14) {
+			return getIdentityDataForNin(id, responseType);
+		}
 		return getIdentityData(id, responseType);
 	}
-
-	public <T> T getIdentityData(String id, Class<?> responseType) throws ApisResourceAccessException {
+	
+	public <T> T getIdentityDataForNin(String id, Class<?> responseType) throws ApisResourceAccessException {
 		Map<String, String> pathSegments = new HashMap<String, String>();
 		pathSegments.put("id", id + "@nin");
 
@@ -944,6 +947,19 @@ public class Utility {
 		queryParamValue.add(RETRIEVE_IDENTITY_PARAM_TYPE_DEMO);
 		queryParamValue.add("handle");
 		
+		return restClientWithSelfTOkenRestTemplate.getApi(ApiName.IDREPO_IDENTITY_URL,
+				pathSegments, queryParamName, queryParamValue, responseType);
+	}
+
+	public <T> T getIdentityData(String id, Class<?> responseType) throws ApisResourceAccessException {
+		Map<String, String> pathSegments = new HashMap<String, String>();
+		pathSegments.put("id", id);
+
+		List<String> queryParamName = new ArrayList<String>();
+		queryParamName.add("type");
+		 
+		List<Object> queryParamValue = new ArrayList<>();
+		queryParamValue.add(RETRIEVE_IDENTITY_PARAM_TYPE_DEMO);
 		return restClientWithSelfTOkenRestTemplate.getApi(ApiName.IDREPO_IDENTITY_URL,
 				pathSegments, queryParamName, queryParamValue, responseType);
 	}
