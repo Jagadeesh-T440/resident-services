@@ -1102,18 +1102,25 @@ public class RequestValidator {
 					AuditEnum.getAuditEventWithValue(AuditEnum.INPUT_INVALID, "channel", "Request channel verification API"));
 			throw new InvalidInputException("channel");
 		}
-		if (individualId.length() != ninLength && (StringUtils.isEmpty(individualId) || !validateUinOrVid(individualId))) {
-			audit.setAuditRequestDto(
-					AuditEnum.getAuditEventWithValue(AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
-			throw new ResidentServiceException(ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorCode(),
-					ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorMessage());
-		}
-		if(individualId.length() == ninLength  && (StringUtils.isEmpty(individualId) ||  !validateNin(individualId))) {
-			audit.setAuditRequestDto(
-					AuditEnum.getAuditEventWithValue(AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
-			throw new ResidentServiceException(ResidentErrorCode.INVALID_NIN_ENTERED.getErrorCode(),
-					ResidentErrorCode.INVALID_NIN_ENTERED.getErrorMessage());
-		}
+	    if (StringUtils.isEmpty(individualId)) {
+	        audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(
+	                        AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
+	        throw new ResidentServiceException(ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorCode(),
+	                ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorMessage());
+	    }
+	    if (individualId.length() == ninLength && !validateNin(individualId)) {
+	    	audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(
+                    AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
+	    	throw new ResidentServiceException(ResidentErrorCode.INVALID_NIN_ENTERED.getErrorCode(),
+	                ResidentErrorCode.INVALID_NIN_ENTERED.getErrorMessage());
+	    }
+
+	    if (individualId.length() != ninLength && !validateUinOrVid(individualId)) {
+	    	audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(
+                    AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
+	    	throw new ResidentServiceException(ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorCode(),
+	                ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorMessage());
+	    }
 		if (individualId.length() > vidLength) {
 			throw new ResidentServiceException(ResidentErrorCode.CHAR_LIMIT_EXCEEDS.getErrorCode(),
 					String.format(ResidentErrorCode.CHAR_LIMIT_EXCEEDS.getErrorMessage(),vidLength,individualId));
