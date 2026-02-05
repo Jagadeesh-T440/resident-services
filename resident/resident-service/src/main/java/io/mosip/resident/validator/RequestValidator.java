@@ -88,6 +88,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -200,6 +201,12 @@ public class RequestValidator {
 	public void setAuthUnlockId(String authUnLockId) {
 		this.authUnLockId = authUnLockId;
 	}
+
+	@Value("${mosip.id.validation.nin.length}")
+	private int ninLength;
+	
+	@Value("${mosip.id.validation.regex.nin}")
+	private String numericRegEx;
 
 	@Value("${mosip.id.validation.identity.phone}")
 	private String phoneRegex;
@@ -675,6 +682,23 @@ public class RequestValidator {
 			return false;
 		}
 	}
+	
+	private boolean validateNin(String nin) {
+		if (StringUtils.isEmpty(nin)) {
+			throw new InvalidIDException(ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorCode(),
+					ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorMessage());
+		}
+		if (nin.length() != ninLength) {
+			throw new InvalidIDException(ResidentErrorCode.NIN_VAL_ILLEGAL_LENGTH.getErrorCode(),
+					ResidentErrorCode.NIN_VAL_ILLEGAL_LENGTH.getErrorMessage());
+		}
+		if (!Pattern.matches(numericRegEx, nin)) {
+			throw new InvalidIDException(ResidentErrorCode.NIN_VAL_INVALID_DIGITS.getErrorCode(),
+					ResidentErrorCode.NIN_VAL_INVALID_DIGITS.getErrorMessage());
+		}
+
+		return true;
+	}
 
 	public void validateVidRevokeRequest(RequestWrapper<? extends BaseVidRevokeRequestDTO> requestDto, boolean isOtpValidationRequired, String individualId) {
 
@@ -1078,12 +1102,25 @@ public class RequestValidator {
 					AuditEnum.getAuditEventWithValue(AuditEnum.INPUT_INVALID, "channel", "Request channel verification API"));
 			throw new InvalidInputException("channel");
 		}
-		if (StringUtils.isEmpty(individualId) || !validateUinOrVid(individualId)) {
-			audit.setAuditRequestDto(
-					AuditEnum.getAuditEventWithValue(AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
-			throw new ResidentServiceException(ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorCode(),
-					ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorMessage());
-		}
+	    if (StringUtils.isEmpty(individualId)) {
+	        audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(
+	                        AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
+	        throw new ResidentServiceException(ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorCode(),
+	                ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorMessage());
+	    }
+	    if (individualId.length() == ninLength && !validateNin(individualId)) {
+	    	audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(
+                    AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
+	    	throw new ResidentServiceException(ResidentErrorCode.INVALID_NIN_ENTERED.getErrorCode(),
+	                ResidentErrorCode.INVALID_NIN_ENTERED.getErrorMessage());
+	    }
+
+	    if (individualId.length() != ninLength && !validateUinOrVid(individualId)) {
+	    	audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(
+                    AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
+	    	throw new ResidentServiceException(ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorCode(),
+	                ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorMessage());
+	    }
 		if (individualId.length() > vidLength) {
 			throw new ResidentServiceException(ResidentErrorCode.CHAR_LIMIT_EXCEEDS.getErrorCode(),
 					String.format(ResidentErrorCode.CHAR_LIMIT_EXCEEDS.getErrorMessage(),vidLength,individualId));
