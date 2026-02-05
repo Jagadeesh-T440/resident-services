@@ -146,7 +146,7 @@ public class ResidentVidController {
 		if(residentIndividualId == null && requestDto.getRequest() != null) {
 			residentIndividualId = getResidentIndividualId();
 		}
-		logger.info("residentIndividualId while creating VID : {}", residentIndividualId);
+		logger.info("validateVidCreateV2Request called with individualId='{}'", residentIndividualId);
 		validator.validateVidCreateRequest(requestDto, isOtpValidationRequired, residentIndividualId);
 		ResponseWrapper<VidResponseDto> vidResponseDto = residentVidService.generateVid(requestDto.getRequest(), residentIndividualId);
 		if(isOtpValidationRequired){
@@ -167,6 +167,7 @@ public class ResidentVidController {
 		if(residentIndividualId == null && requestDto.getRequest() != null) {
 			residentIndividualId = getResidentIndividualId();
 		}
+		logger.info("validateVidCreateV2Request called with individualId='{}'", residentIndividualId);
 		validator.validateVidCreateV2Request(requestDto, isOtpValidationRequired, residentIndividualId);
 		Tuple2<ResponseWrapper<VidResponseDto>, String> tupleResponse = residentVidService.generateVidV2(requestDto.getRequest(), residentIndividualId);
 		auditUtil.setAuditRequestDto(AuditEnum.getAuditEventWithValue(AuditEnum.GENERATE_VID_SUCCESS,
@@ -221,6 +222,7 @@ public class ResidentVidController {
 		if (residentIndividualId !=null && residentIndividualId.equals(vid)) {
 			throw new ResidentServiceCheckedException(ResidentErrorCode.VID_VALIDATION);
 		}
+		logger.info("validateVidRevokeRequest called with individualId='{}'", residentIndividualId);
 		validator.validateVidRevokeRequest(requestDto, isOtpValidationRequired, residentIndividualId);
 		requestDto.getRequest().setVidStatus(requestDto.getRequest().getVidStatus().toUpperCase());
 		ResponseWrapper<VidRevokeResponseDTO> vidResponseDto = residentVidService.revokeVid(requestDto.getRequest(),
