@@ -1,8 +1,6 @@
 package io.mosip.resident.validator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.mosip.kernel.core.logger.spi.Logger;
-import io.mosip.resident.config.LoggerConfiguration;
 import io.mosip.kernel.core.http.ResponseWrapper;
 import io.mosip.kernel.core.idvalidator.exception.InvalidIDException;
 import io.mosip.kernel.core.idvalidator.spi.RidValidator;
@@ -109,8 +107,6 @@ public class RequestValidator {
 	private static final String REQUEST = "request";
 	private static final String VALIDATE_EVENT_ID = "Validating Event Id.";
 	private static final String ID_SCHEMA_VERSION = "IDSchemaVersion";
-
-	private static final Logger logger = LoggerConfiguration.logConfig(ResidentVidController.class);
 
 	@Autowired
 	private UinValidator<String> uinValidator;
@@ -319,8 +315,6 @@ public class RequestValidator {
 			throw new InvalidInputException(REQUESTTIME);
 		}
 
-		logger.info("validateVidCreateV2Request called with individualId='{}'", individualId);
-
 		if (StringUtils.isEmpty(requestDto.getId()) || !requestDto.getId().equalsIgnoreCase(id)) {
 			audit.setAuditRequestDto(
 					AuditEnum.getAuditEventWithValue(AuditEnum.INPUT_INVALID, ID, "Request to generate VID"));
@@ -375,7 +369,6 @@ public class RequestValidator {
 
 			throw new InvalidInputException(REQUESTTIME);
 		}
-		logger.info("validateVidCreateV2Request called with individualId='{}'", individualId);
 
 		if (StringUtils.isEmpty(requestDto.getId()) || !requestDto.getId().equalsIgnoreCase(generateId)) {
 			audit.setAuditRequestDto(
