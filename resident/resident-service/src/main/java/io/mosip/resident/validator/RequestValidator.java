@@ -1,6 +1,8 @@
 package io.mosip.resident.validator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.mosip.kernel.core.logger.spi.Logger;
+import io.mosip.resident.config.LoggerConfiguration;
 import io.mosip.kernel.core.http.ResponseWrapper;
 import io.mosip.kernel.core.idvalidator.exception.InvalidIDException;
 import io.mosip.kernel.core.idvalidator.spi.RidValidator;
