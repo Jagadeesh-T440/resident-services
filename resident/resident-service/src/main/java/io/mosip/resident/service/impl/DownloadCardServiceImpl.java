@@ -445,10 +445,10 @@ public class DownloadCardServiceImpl implements DownloadCardService {
 			String transactionTypeCode = packetStatusMap.get(ResidentConstants.TRANSACTION_TYPE_CODE);
 			String aidStatus = packetStatusMap.get(ResidentConstants.AID_STATUS);
 			logger.info(String.format("Fetching transactionTypeCode: %s and aidStatus: %s", transactionTypeCode, aidStatus));
-			// if (transactionTypeCode.equalsIgnoreCase(TransactionStage.CARD_READY_TO_DOWNLOAD.name())
-			// 		&& aidStatus.equalsIgnoreCase(PacketStatus.SUCCESS.getName())) {
-			// 	residentCredentialService.getDataShareUrl(rid + utility.getRidDeliMeterValue());
-			// }
+			if (transactionTypeCode.equalsIgnoreCase(TransactionStage.CARD_READY_TO_DOWNLOAD.name())
+					&& aidStatus.equalsIgnoreCase(PacketStatus.SUCCESS.getName())) {
+				residentCredentialService.getDataShareUrl(rid + utility.getRidDeliMeterValue());
+			}
 		} catch (ResidentCredentialServiceException e) {
 			logger.info("Since datashare URL is not available, marking the aid status as in-progress.");
 			packetStatusMap.put(ResidentConstants.AID_STATUS, PacketStatus.IN_PROGRESS.getName());
