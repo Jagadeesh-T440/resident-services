@@ -651,7 +651,7 @@ public class Utility {
 			throw new ResidentServiceCheckedException(ResidentErrorCode.NO_CHANNEL_IN_IDENTITY);
 		}
 		String refIdHash = getRefIdHash(id);
-		logger.info("Generated RefId Hash for id: {}", id);
+		logger.info("Generated RefId Hash for id: {}", refIdHash);
 		return refIdHash;
 	}
 
