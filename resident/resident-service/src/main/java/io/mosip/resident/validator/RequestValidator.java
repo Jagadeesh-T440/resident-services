@@ -108,6 +108,8 @@ public class RequestValidator {
 	private static final String VALIDATE_EVENT_ID = "Validating Event Id.";
 	private static final String ID_SCHEMA_VERSION = "IDSchemaVersion";
 
+	private static final Logger logger = LoggerConfiguration.logConfig(ResidentVidController.class);
+
 	@Autowired
 	private UinValidator<String> uinValidator;
 
@@ -315,6 +317,8 @@ public class RequestValidator {
 			throw new InvalidInputException(REQUESTTIME);
 		}
 
+		logger.debug("validateVidCreateV2Request called with individualId='{}'", individualId);
+
 		if (StringUtils.isEmpty(requestDto.getId()) || !requestDto.getId().equalsIgnoreCase(id)) {
 			audit.setAuditRequestDto(
 					AuditEnum.getAuditEventWithValue(AuditEnum.INPUT_INVALID, ID, "Request to generate VID"));
@@ -369,6 +373,7 @@ public class RequestValidator {
 
 			throw new InvalidInputException(REQUESTTIME);
 		}
+		logger.debug("validateVidCreateV2Request called with individualId='{}'", individualId);
 
 		if (StringUtils.isEmpty(requestDto.getId()) || !requestDto.getId().equalsIgnoreCase(generateId)) {
 			audit.setAuditRequestDto(
