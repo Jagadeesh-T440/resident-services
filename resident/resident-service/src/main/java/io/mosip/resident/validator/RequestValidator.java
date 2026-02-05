@@ -341,8 +341,7 @@ public class RequestValidator {
 		if (StringUtils.isEmpty(individualId)) {
 			audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(
 					AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
-			throw new ResidentServiceException(ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorCode(),
-					ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorMessage());
+			throw new InvalidInputException("individualId");
 		}
 
 		if (individualId.length() == ninLength && !validateNin(individualId)) {
@@ -355,8 +354,7 @@ public class RequestValidator {
 		if (individualId.length() != ninLength && !validateUinOrVid(individualId)) {
 			audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(
 					AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
-			throw new ResidentServiceException(ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorCode(),
-					ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorMessage());
+			throw new InvalidInputException("individualId");
 		}
 
 		BaseVidRequestDto vidRequestDto = requestDto.getRequest();
@@ -414,8 +412,7 @@ public class RequestValidator {
 		if (StringUtils.isEmpty(individualId)) {
 			audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(
 					AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
-			throw new ResidentServiceException(ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorCode(),
-					ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorMessage());
+			throw new InvalidInputException("individualId");
 		}
 
 		if (individualId.length() == ninLength && !validateNin(individualId)) {
@@ -428,8 +425,7 @@ public class RequestValidator {
 		if (individualId.length() != ninLength && !validateUinOrVid(individualId)) {
 			audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(
 					AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
-			throw new ResidentServiceException(ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorCode(),
-					ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorMessage());
+			throw new InvalidInputException("individualId");
 		}
 
 		BaseVidRequestDto vidRequestDto = requestDto.getRequest();
