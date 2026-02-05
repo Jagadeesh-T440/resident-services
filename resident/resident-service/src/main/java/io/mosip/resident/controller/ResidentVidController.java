@@ -146,6 +146,7 @@ public class ResidentVidController {
 		if(residentIndividualId == null && requestDto.getRequest() != null) {
 			residentIndividualId = getResidentIndividualId();
 		}
+		logger.info("residentIndividualId while creating VID : {}", residentIndividualId);
 		validator.validateVidCreateRequest(requestDto, isOtpValidationRequired, residentIndividualId);
 		ResponseWrapper<VidResponseDto> vidResponseDto = residentVidService.generateVid(requestDto.getRequest(), residentIndividualId);
 		if(isOtpValidationRequired){
