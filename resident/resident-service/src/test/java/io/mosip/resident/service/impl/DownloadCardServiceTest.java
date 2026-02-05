@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
 
 import java.io.IOException;
-import org.junit.Ignore;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -324,7 +323,6 @@ public class DownloadCardServiceTest {
 		assertEquals(PacketStatus.SUCCESS.getName(), individualIdStatus.getResponse().getAidStatus());
 	}
 
-	@Ignore
 	@Test
 	public void testGetIndividualIdStatusWithResidentCredentialServiceException()
 			throws ApisResourceAccessException, IOException, ResidentServiceCheckedException {
