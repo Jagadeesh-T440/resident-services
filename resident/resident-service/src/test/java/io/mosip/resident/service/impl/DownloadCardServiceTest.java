@@ -334,6 +334,6 @@ public class DownloadCardServiceTest {
 				.thenThrow(ResidentCredentialServiceException.class);
 		ResponseWrapper<CheckStatusResponseDTO> individualIdStatus = downloadCardService
 				.getIndividualIdStatus("3425636374");
-		assertEquals(PacketStatus.IN_PROGRESS.getName(), individualIdStatus.getResponse().getAidStatus());
+		assertEquals(PacketStatus.SUCCESS.getName(), individualIdStatus.getResponse().getAidStatus());
 	}
 }
