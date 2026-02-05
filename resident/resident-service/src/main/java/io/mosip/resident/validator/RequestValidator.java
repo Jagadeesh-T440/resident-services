@@ -319,7 +319,7 @@ public class RequestValidator {
 			throw new InvalidInputException(REQUESTTIME);
 		}
 
-		logger.debug("validateVidCreateV2Request called with individualId='{}'", individualId);
+		logger.info("validateVidCreateV2Request called with individualId='{}'", individualId);
 
 		if (StringUtils.isEmpty(requestDto.getId()) || !requestDto.getId().equalsIgnoreCase(id)) {
 			audit.setAuditRequestDto(
@@ -375,7 +375,7 @@ public class RequestValidator {
 
 			throw new InvalidInputException(REQUESTTIME);
 		}
-		logger.debug("validateVidCreateV2Request called with individualId='{}'", individualId);
+		logger.info("validateVidCreateV2Request called with individualId='{}'", individualId);
 
 		if (StringUtils.isEmpty(requestDto.getId()) || !requestDto.getId().equalsIgnoreCase(generateId)) {
 			audit.setAuditRequestDto(
