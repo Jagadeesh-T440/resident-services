@@ -650,9 +650,7 @@ public class Utility {
 		} else {
 			throw new ResidentServiceCheckedException(ResidentErrorCode.NO_CHANNEL_IN_IDENTITY);
 		}
-		String refIdHash = getRefIdHash(id);
-		logger.info("Generated RefId Hash for id: {}", refIdHash);
-		return refIdHash;
+		return getRefIdHash(id);
 	}
 
 	public String getFileNameAck(String featureName, String eventId, String propertyName, int timeZoneOffset, String locale) {
