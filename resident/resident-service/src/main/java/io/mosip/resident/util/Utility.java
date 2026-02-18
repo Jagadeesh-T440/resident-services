@@ -491,21 +491,24 @@ public class Utility {
 		return maskData(maskData, maskingFunction);
 	}
 
+	// public String getPassword(List<String> attributeValues) {
+	// 	Map<String, List<String>> context = new HashMap<>();
+	// 	context.put("attributeValues", attributeValues);
+	// 	VariableResolverFactory myVarFactory = new MapVariableResolverFactory(context);
+	// 	myVarFactory.setNextFactory(functionFactory);
+	// 	String maskingFunctionName = this.env.getProperty(ResidentConstants.CREATE_PASSWORD_METHOD_NAME);
+	// 	Serializable serializable = MVEL.compileExpression(maskingFunctionName + "(attributeValues);");
+	// 	return MVEL.executeExpression(serializable, context, myVarFactory, String.class);
+	// }
+
 	public String getPassword(List<String> attributeValues) {
-		Map<String, List<String>> context = new HashMap<>();
-		context.put("attributeValues", attributeValues);
-		VariableResolverFactory myVarFactory = new MapVariableResolverFactory(context);
-		myVarFactory.setNextFactory(functionFactory);
-		String maskingFunctionName = this.env.getProperty(ResidentConstants.CREATE_PASSWORD_METHOD_NAME);
-		Serializable serializable = MVEL.compileExpression(maskingFunctionName + "(attributeValues);");
-		
-		logger.info("attributeValues: {}", attributeValues);
-    	logger.info("context: {}", context);
-   	 	logger.info("functionFactory: {}", functionFactory);
-    	logger.info("myVarFactory: {}", myVarFactory);
-    	logger.info("maskingFunctionName: {}", maskingFunctionName);
-    	logger.info("serializable expression: {}", serializable);
-		return MVEL.executeExpression(serializable, context, myVarFactory, String.class);
+	    String name = attributeValues.get(0);
+	    String dob = attributeValues.get(1);
+
+	    String firstFourLetters = name.substring(0, 4).toUpperCase();
+	    String year = dob.substring(dob.length() - 4);
+
+	    return firstFourLetters + year;
 	}
 
 	public ResidentTransactionEntity createEntity(RequestType requestType) {
