@@ -226,9 +226,7 @@ public class DownloadCardServiceImpl implements DownloadCardService {
 				decodedData = CryptoUtil.decodePlainBase64(encodeHtml);
 				identityAttribute = getAttributeList(identityAttributes);
 				List<String> attributeValues = identityAttribute.getT1();
-				logger.info(String.format("Get personalization card PDF password: %s", password ));
 				if (Boolean.parseBoolean(this.environment.getProperty(ResidentConstants.IS_PASSWORD_FLAG_ENABLED))) {
-					logger.info("Creating Password*************");
 					password = utility.getPassword(attributeValues);
 				}
 				logger.info(String.format("Get personalization card PDF password is %s", password ));
