@@ -498,6 +498,13 @@ public class Utility {
 		myVarFactory.setNextFactory(functionFactory);
 		String maskingFunctionName = this.env.getProperty(ResidentConstants.CREATE_PASSWORD_METHOD_NAME);
 		Serializable serializable = MVEL.compileExpression(maskingFunctionName + "(attributeValues);");
+		
+		logger.info("attributeValues: {}", attributeValues);
+    	logger.info("context: {}", context);
+   	 	logger.info("functionFactory: {}", functionFactory);
+    	logger.info("myVarFactory: {}", myVarFactory);
+    	logger.info("maskingFunctionName: {}", maskingFunctionName);
+    	logger.info("serializable expression: {}", serializable);
 		return MVEL.executeExpression(serializable, context, myVarFactory, String.class);
 	}
 
