@@ -315,6 +315,10 @@ public class RequestValidator {
 			throw new InvalidInputException(REQUESTTIME);
 		}
 
+		if (individualId != null && individualId.endsWith("@nin")) {
+			individualId = individualId.substring(0, individualId.length() - 4);
+		}
+
 		if (StringUtils.isEmpty(requestDto.getId()) || !requestDto.getId().equalsIgnoreCase(id)) {
 			audit.setAuditRequestDto(
 					AuditEnum.getAuditEventWithValue(AuditEnum.INPUT_INVALID, ID, "Request to generate VID"));
@@ -334,10 +338,22 @@ public class RequestValidator {
 			throw new InvalidInputException(REQUEST);
 		}
 
-		if (StringUtils.isEmpty(individualId)
-				|| !validateUinOrVid(individualId)) {
-			audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(AuditEnum.INPUT_INVALID, "individualId",
-					"Request generate VID API"));
+		if (StringUtils.isEmpty(individualId)) {
+			audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(
+					AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
+			throw new InvalidInputException("individualId");
+		}
+
+		if (individualId.length() == ninLength && !validateNin(individualId)) {
+			audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(
+					AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
+			throw new ResidentServiceException(ResidentErrorCode.INVALID_NIN_ENTERED.getErrorCode(),
+					ResidentErrorCode.INVALID_NIN_ENTERED.getErrorMessage());
+		}
+
+		if (individualId.length() != ninLength && !validateUinOrVid(individualId)) {
+			audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(
+					AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
 			throw new InvalidInputException("individualId");
 		}
 
@@ -370,6 +386,10 @@ public class RequestValidator {
 			throw new InvalidInputException(REQUESTTIME);
 		}
 
+		if (individualId != null && individualId.endsWith("@nin")) {
+			individualId = individualId.substring(0, individualId.length() - 4);
+		}
+
 		if (StringUtils.isEmpty(requestDto.getId()) || !requestDto.getId().equalsIgnoreCase(generateId)) {
 			audit.setAuditRequestDto(
 					AuditEnum.getAuditEventWithValue(AuditEnum.INPUT_INVALID, "generateId", "Request to generate VID"));
@@ -389,10 +409,22 @@ public class RequestValidator {
 			throw new InvalidInputException(REQUEST);
 		}
 
-		if (StringUtils.isEmpty(individualId)
-				|| !validateUinOrVid(individualId)) {
-			audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(AuditEnum.INPUT_INVALID, "individualId",
-					"Request generate VID API"));
+		if (StringUtils.isEmpty(individualId)) {
+			audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(
+					AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
+			throw new InvalidInputException("individualId");
+		}
+
+		if (individualId.length() == ninLength && !validateNin(individualId)) {
+			audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(
+					AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
+			throw new ResidentServiceException(ResidentErrorCode.INVALID_NIN_ENTERED.getErrorCode(),
+					ResidentErrorCode.INVALID_NIN_ENTERED.getErrorMessage());
+		}
+
+		if (individualId.length() != ninLength && !validateUinOrVid(individualId)) {
+			audit.setAuditRequestDto(AuditEnum.getAuditEventWithValue(
+					AuditEnum.INPUT_INVALID, "individualId", "Request channel verification API"));
 			throw new InvalidInputException("individualId");
 		}
 
@@ -684,6 +716,9 @@ public class RequestValidator {
 	}
 	
 	private boolean validateNin(String nin) {
+		if (nin != null && nin.endsWith("@nin")) {
+			nin = nin.substring(0, nin.length() - 4);
+		}
 		if (StringUtils.isEmpty(nin)) {
 			throw new InvalidIDException(ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorCode(),
 					ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorMessage());
