@@ -177,6 +177,7 @@ public class IdentityServiceImpl implements IdentityService {
 				finalFilter.addAll(additionalAttributes);
 			}
 			logger.info("Final filter list for schemaType: {}, finalFilter: {}", schemaType, finalFilter);
+			logger.info("PHOTO_ATTRIB_PROP key: {}, IMAGE key: {}", env.getProperty(PHOTO_ATTRIB_PROP), env.getProperty(IMAGE));
 			Map<String, Object> response = finalFilter.stream()
 					.peek(a -> {
 						if(a.equals(PERPETUAL_VID) || a.equals(ResidentConstants.MASK_PERPETUAL_VID) && !identity.containsKey(PERPETUAL_VID)) {
@@ -195,6 +196,7 @@ public class IdentityServiceImpl implements IdentityService {
 					})
 					.peek(a -> {
 						if(a.equals(env.getProperty(PHOTO_ATTRIB_PROP))) {
+							logger.info("PHOTO_ATTRIB_PROP key: {}, IMAGE key: {}", env.getProperty(PHOTO_ATTRIB_PROP), env.getProperty(IMAGE));
 							String photo;
 							try {
 								if (Utility.isSecureSession()) {
@@ -207,6 +209,7 @@ public class IdentityServiceImpl implements IdentityService {
 								throw new ResidentServiceException(ResidentErrorCode.API_RESOURCE_ACCESS_EXCEPTION.getErrorCode(),
 										ResidentErrorCode.API_RESOURCE_ACCESS_EXCEPTION.getErrorMessage(), e);
 							}
+							logger.info("Fetched photo value: {}", photo);
 							if(photo != null) {
 								identity.put(env.getProperty(PHOTO_ATTRIB_PROP), photo);
 							}
