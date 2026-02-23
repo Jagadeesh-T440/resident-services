@@ -87,7 +87,9 @@ public class IdentityController {
 		ResponseWrapper<Object> responseWrapper = new ResponseWrapper<>();
 		String id = getIdFromUser();
 		Map<String, ?> propertiesResponse = idServiceImpl.getIdentityAttributes(id, schemaType, List.of());
+		logger.info("Before removing IDENTITY, propertiesResponse keys: {}", propertiesResponse.keySet());
 		propertiesResponse.remove(IDENTITY);
+		logger.info("After removing IDENTITY, propertiesResponse keys: {}", propertiesResponse.keySet());
 		auditUtil.setAuditRequestDto(AuditEnum.GET_INPUT_ATTRIBUTES_SUCCESS);
 		logger.debug("IdentityController::getInputAttributeValues()::exit");
 		responseWrapper.setResponse(propertiesResponse);
