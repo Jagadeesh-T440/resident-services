@@ -176,6 +176,7 @@ public class IdentityServiceImpl implements IdentityService {
 			if(additionalAttributes != null && additionalAttributes.size()>0){
 				finalFilter.addAll(additionalAttributes);
 			}
+			logger.info("Final filter list for schemaType: {}, finalFilter: {}", schemaType, finalFilter);
 			Map<String, Object> response = finalFilter.stream()
 					.peek(a -> {
 						if(a.equals(PERPETUAL_VID) || a.equals(ResidentConstants.MASK_PERPETUAL_VID) && !identity.containsKey(PERPETUAL_VID)) {
