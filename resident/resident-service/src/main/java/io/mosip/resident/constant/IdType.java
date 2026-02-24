@@ -1,5 +1,5 @@
 package io.mosip.resident.constant;
 
 public enum IdType {
-	UIN, RID, VID, AID;
+	UIN, RID, VID, AID, NIN;
 }

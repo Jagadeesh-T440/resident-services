@@ -439,6 +439,7 @@ public class DownloadCardServiceImpl implements DownloadCardService {
 			throws ApisResourceAccessException, IOException, ResidentServiceCheckedException {
 		logger.debug("DownloadCardServiceImpl::getIndividualIdStatus()::entry");
 		String rid = getRidForIndividualId(individualId);
+		logger.info("Extracted RID {} for individualId {}", rid, individualId);
 		Map<String, String> packetStatusMap = utilities.getPacketStatus(rid);
 		logger.info("PacketStatusMap for RID {} : {}", rid, packetStatusMap);		
 		try {
