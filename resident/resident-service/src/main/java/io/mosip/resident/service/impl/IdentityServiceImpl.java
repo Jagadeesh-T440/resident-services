@@ -271,6 +271,7 @@ public class IdentityServiceImpl implements IdentityService {
 	
 	private Map<String, String> getClaims(Set<String> claims) throws ApisResourceAccessException {
 		String accessToken = getAccessToken();
+		logger.info("Getting the access Token {}", accessToken);
 		if (!Objects.equals(accessToken, "")) {
 			return getClaimsFromToken(claims, accessToken);
 		}
