@@ -130,6 +130,7 @@ public class ResidentConfigServiceImpl implements ResidentConfigService {
 	public List<String> getUiSchemaFilteredInputAttributes(String schemaType) {
 		logger.debug("ResidentConfigServiceImpl::getUiSchemaFilteredInputAttributes()::entry");
 		List<Map<String, Object>> identityList = getUISchemaData(schemaType);
+		logger.info("schemaType: {}, identityList: {}", schemaType, identityList);
 		List<String> uiSchemaFilteredInputAttributesList = identityList.stream().flatMap(map -> {
 			List<String> attributeList = new ArrayList<>();
 			attributeList.add((String) map.get(env.getProperty(UI_SCHEMA_ATTRIBUTE_NAME)));
