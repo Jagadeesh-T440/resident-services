@@ -464,6 +464,10 @@ public class DownloadCardServiceImpl implements DownloadCardService {
 			return individualId;
 		} else {
 			try {
+				if (idType.equals(IdType.NIN)) {
+					/*Extracting UIN from NIN*/
+					individualId = individualId.substring(4); 
+				}
 				return utilities.getRidByIndividualId(individualId);
 			} catch (ApisResourceAccessException e) {
 				throw new RuntimeException(e);
