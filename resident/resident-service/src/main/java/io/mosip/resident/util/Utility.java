@@ -801,6 +801,7 @@ public class Utility {
 			MultiValueMap<String, String> headers =
 					new LinkedMultiValueMap<String, String>(Map.of(AUTHORIZATION, List.of(BEARER_PREFIX + token)));
 			String responseStr = restClientWithPlainRestTemplate.getApi(uriComponent.toUri(), String.class, headers);
+			logger.info("Getting response from restClientWithPlainRestTemplate {}",responseStr);
 			responseMap = (Map<String, Object>) decodeAndDecryptUserInfo(responseStr);
 		} catch (ApisResourceAccessException e) {
 			throw e;
