@@ -416,7 +416,7 @@ public class IdentityServiceImpl implements IdentityService {
 			return IdType.UIN;
 		} else if(requestValidator.validateVid(individualId)){
 			return IdType.VID;
-		} else if(requestValidator.validateUin(individualId)) {
+		} else if(requestValidator.validateNin(individualId)) {
 			return IdType.NIN;
 		} else {
 			return IdType.AID;
