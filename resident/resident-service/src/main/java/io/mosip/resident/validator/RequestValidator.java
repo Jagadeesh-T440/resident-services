@@ -715,7 +715,7 @@ public class RequestValidator {
 		}
 	}
 	
-	private boolean validateNin(String nin) {
+	public boolean validateNin(String nin) {
 		if (nin != null && nin.endsWith("@nin")) {
 			nin = nin.substring(0, nin.length() - 4);
 		}
