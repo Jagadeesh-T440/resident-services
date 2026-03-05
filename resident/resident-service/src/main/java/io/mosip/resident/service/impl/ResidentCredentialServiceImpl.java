@@ -370,9 +370,10 @@ public class ResidentCredentialServiceImpl implements ResidentCredentialService 
 		}
 		URI credentailStatusUri = URI.create(credentialUrl);
 		responseDto = residentServiceRestClient.getApi(credentailStatusUri, ResponseWrapper.class);
+		logger.info("Credential status response : {}", responseDto);
 		credentialRequestStatusResponseDto = JsonUtil.readValue(
 				JsonUtil.writeValueAsString(responseDto.getResponse()), CredentialRequestStatusDto.class);
-
+		logger.info("Credential status debugged response : {}", credentialRequestStatusResponseDto);
 		if (credentialRequestStatusResponseDto != null) {
 			if(EventStatusSuccess.STORED.name().equals(credentialRequestStatusResponseDto.getStatusCode())
 				&& credentialRequestStatusResponseDto.getUrl() != null
