@@ -505,7 +505,7 @@ public class Utility {
 	    String name = attributeValues.get(0);
 	    String dob = attributeValues.get(1);
 
-	    String firstFourLetters = name.substring(0, 4).toUpperCase();
+	    String firstFourLetters = name.substring(0, 2).toUpperCase();
 	    String year = dob.substring(dob.length() - 4);
 
 	    return firstFourLetters + year;
