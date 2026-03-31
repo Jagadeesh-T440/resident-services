@@ -460,7 +460,7 @@ public class DownloadCardServiceImpl implements DownloadCardService {
 
 	private String getRidForIndividualId(String individualId) {
 		IdType idType = identityService.getIndividualIdType(individualId);
-		if (idType.equals(IdType.AID)) {
+		if (idType.equals(IdType.AID) || idType.equals(IdType.RID)) {
 			return individualId;
 		} else {
 			try {
