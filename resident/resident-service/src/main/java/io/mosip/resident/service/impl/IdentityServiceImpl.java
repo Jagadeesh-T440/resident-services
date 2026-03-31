@@ -344,7 +344,7 @@ public class IdentityServiceImpl implements IdentityService {
 			throws ResidentServiceCheckedException, ApisResourceAccessException {
 		String id;
 		IdType idType = getIndividualIdType(individualId);
-		if(idType.equals(IdType.AID)) {
+		if(idType.equals(IdType.AID) || idType.equals(IdType.RID)) {
 			IdentityDTO identity = getIdentity(individualId);
 			String uin = identity.getUIN();
 			if(useVidOnly) {
