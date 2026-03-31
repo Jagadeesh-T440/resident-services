@@ -1387,7 +1387,11 @@ public class ResidentServiceImpl implements ResidentService {
 												 JSONObject mappingJsonObject, JSONObject demographicIdentity, String sessionUin)
 			throws ApisResourceAccessException, ValidationFailedException, IOException {
 		String uin = "";
-		if (ResidentIndividialIDType.UIN.toString().equals(individualIdType))
+		if (ResidentIndividialIDType.NIN.toString().equals(individualIdType) 
+        || individualIdType.equalsIgnoreCase("handle")) {
+			uin = individualId;
+		}
+		else if (ResidentIndividialIDType.UIN.toString().equals(individualIdType))
 			uin = individualId;
 		else if (ResidentIndividialIDType.VID.toString().equals(individualIdType)) {
 			if(sessionUin!=null){
