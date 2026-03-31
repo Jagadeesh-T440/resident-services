@@ -117,11 +117,12 @@ public class ResidentUpdateService {
 		byte[] packetZipBytes = null;
 		audit.setAuditRequestDto(AuditEnum.CREATE_PACKET);
 		PackerGeneratorFailureDto dto = new PackerGeneratorFailureDto();
-		if (validator.isValidCenter(request.getCenterId())
+		if (request.getIdType().equals(ResidentIndividialIDType.NIN)? true
+        : (validator.isValidCenter(request.getCenterId())
 				&& request.getIdType().equals(ResidentIndividialIDType.UIN)
 						? validator.isValidRegistrationTypeAndUin(RegistrationType.RES_UPDATE.toString(),
 								request.getIdValue(), idResponseDto)
-						: validator.isValidVid(request.getIdValue(), sessionUin)) {
+						: validator.isValidVid(request.getIdValue(), sessionUin))) {
 
 			logger.debug(LoggerFileConstant.SESSIONID.toString(), LoggerFileConstant.UIN.toString(),
 					request.getIdValue(),
