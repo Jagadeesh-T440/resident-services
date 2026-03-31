@@ -716,23 +716,26 @@ public class RequestValidator {
 	}
 	
 	public boolean validateNin(String nin) {
-		if (nin != null && nin.endsWith("@nin")) {
-			nin = nin.substring(0, nin.length() - 4);
+		try {
+			if (nin != null && nin.endsWith("@nin")) {
+				nin = nin.substring(0, nin.length() - 4);
+			}
+			if (StringUtils.isEmpty(nin)) {
+				throw new InvalidIDException(ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorCode(),
+						ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorMessage());
+			}
+			if (nin.length() != ninLength) {
+				throw new InvalidIDException(ResidentErrorCode.NIN_VAL_ILLEGAL_LENGTH.getErrorCode(),
+						ResidentErrorCode.NIN_VAL_ILLEGAL_LENGTH.getErrorMessage());
+			}
+			if (!Pattern.matches(numericRegEx, nin)) {
+				throw new InvalidIDException(ResidentErrorCode.NIN_VAL_INVALID_DIGITS.getErrorCode(),
+						ResidentErrorCode.NIN_VAL_INVALID_DIGITS.getErrorMessage());
+			}
+			return true;
+		} catch(InvalidIDException e) {
+			return false;
 		}
-		if (StringUtils.isEmpty(nin)) {
-			throw new InvalidIDException(ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorCode(),
-					ResidentErrorCode.INVALID_UIN_VID_ENTERED.getErrorMessage());
-		}
-		if (nin.length() != ninLength) {
-			throw new InvalidIDException(ResidentErrorCode.NIN_VAL_ILLEGAL_LENGTH.getErrorCode(),
-					ResidentErrorCode.NIN_VAL_ILLEGAL_LENGTH.getErrorMessage());
-		}
-		if (!Pattern.matches(numericRegEx, nin)) {
-			throw new InvalidIDException(ResidentErrorCode.NIN_VAL_INVALID_DIGITS.getErrorCode(),
-					ResidentErrorCode.NIN_VAL_INVALID_DIGITS.getErrorMessage());
-		}
-
-		return true;
 	}
 
 	public void validateVidRevokeRequest(RequestWrapper<? extends BaseVidRevokeRequestDTO> requestDto, boolean isOtpValidationRequired, String individualId) {
