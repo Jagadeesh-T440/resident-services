@@ -387,6 +387,10 @@ public class Utility {
 
 	public String getPreferredLanguageCodeForLanguageNameBasedOnFlag(String fieldName, String preferredLang) {
 		if (isPreferedLangFlagEnabled) {
+			if ("preferredLang".equalsIgnoreCase(fieldName) 
+			        && "English".equalsIgnoreCase(preferredLang)) {
+			    return preferredLang;
+			}
 			try {
 				ResponseWrapper<?> responseWrapper = (ResponseWrapper<DynamicFieldConsolidateResponseDto>)
 						utilities.getDynamicFieldBasedOnLangCodeAndFieldName(fieldName,
