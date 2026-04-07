@@ -119,14 +119,23 @@ public class ResidentOtpServiceImpl implements ResidentOtpService {
 		logger.debug("ResidentOtpServiceImpl::generateOtpForIndividualId()::entry");
 		try {
 			Tuple2<String, IdType> individualIdAndType = identityServiceImpl.getIdAndTypeForIndividualId(individualIdRequestDto.getIndividualId());
-			individualIdRequestDto.setIndividualId(individualIdAndType.getT1());
+			String individualId = individualIdAndType.getT1();
+			IdType idType = individualIdAndType.getT2();
+			
+			if(idType == IdType.NIN) {
+				individualId = individualId + "@nin";
+			}
+			
+			individualIdRequestDto.setIndividualId(individualId);
 			OtpRequestDTO otpRequestDTO = objectMapper.convertValue(individualIdRequestDto, OtpRequestDTO.class);
 			otpRequestDTO.setTransactionID(individualIdRequestDto.getTransactionId());
+			logger.info("Request Object for sending OTP: {}", otpRequestDTO);
 			OtpResponseDTO otpResponseDTO = generateOtp(otpRequestDTO);
 			IndividualIdResponseDto individualIdResponseDto = objectMapper.convertValue(otpResponseDTO, IndividualIdResponseDto.class);
 			if(individualIdResponseDto!=null){
 				individualIdResponseDto.setTransactionId(otpResponseDTO.getTransactionID());
 			}
+			logger.info("Response Object for sending OTP: {}", otpResponseDTO);
 			logger.debug("ResidentOtpServiceImpl::generateOtpForIndividualId()::exit");
 			return individualIdResponseDto;
 		} catch (ResidentServiceCheckedException | ApisResourceAccessException e) {
