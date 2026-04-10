@@ -113,7 +113,7 @@ public class IdentityServiceImpl implements IdentityService {
 			/**
 			 * It is assumed that in the UI schema the UIN is added.
 			 */
-			identityDTO.setUIN(utility.getMappingValue(identity, IdType.UIN.name()));
+			identityDTO.setUIN(utility.getMappingValue(identity, IdType.NIN.name()));
 			identityDTO.setEmail(utility.getMappingValue(identity, EMAIL));
 			identityDTO.setPhone(utility.getMappingValue(identity, PHONE));
 			String dateOfBirth = utility.getMappingValue(identity, DATE_OF_BIRTH);
@@ -346,7 +346,8 @@ public class IdentityServiceImpl implements IdentityService {
 		IdType idType = getIndividualIdType(individualId);
 		if(idType.equals(IdType.AID) || idType.equals(IdType.RID)) {
 			IdentityDTO identity = getIdentity(individualId);
-			String uin = identity.getUIN();
+			String uin = identity.getNIN();
+			uin = uin.toLowerCase();
 			if(useVidOnly) {
 				Optional<String> perpVid = residentVidService.getPerpatualVid(uin);
 				if(perpVid.isPresent()) {
@@ -357,7 +358,7 @@ public class IdentityServiceImpl implements IdentityService {
 				}
 			} else {
 				id = uin;
-				idType = IdType.UIN;
+				idType = IdType.HANDLE;
 			}
 		} else {
 			id = individualId;

@@ -133,7 +133,12 @@ public class DownloadCardServiceImpl implements DownloadCardService {
 			String transactionId = downloadCardRequestDTOMainRequestDTO.getRequest().getTransactionId();
 			identityDTO = identityService.getIdentity(individualId);
 			Tuple2<String, IdType> individualIdAndType = identityService.getIdAndTypeForIndividualId(individualId);
-			Tuple2<Boolean, ResidentTransactionEntity> tupleResponse = idAuthService.validateOtpV2(transactionId, individualIdAndType.getT1(),
+			String idValue = individualIdAndType.getT1();
+			IdType idType = individualIdAndType.getT2();
+			if (idType == IdType.HANDLE && !idValue.endsWith("@nin")) {
+				idValue = idValue + "@nin";
+			}
+			Tuple2<Boolean, ResidentTransactionEntity> tupleResponse = idAuthService.validateOtpV2(transactionId, idValue,
 					downloadCardRequestDTOMainRequestDTO.getRequest().getOtp(), RequestType.GET_MY_ID);
 			residentTransactionEntity = tupleResponse.getT2();
 			if (residentTransactionEntity != null) {

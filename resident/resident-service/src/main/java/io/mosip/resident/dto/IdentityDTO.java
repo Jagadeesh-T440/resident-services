@@ -19,6 +19,7 @@ public class IdentityDTO extends LinkedHashMap<String, Object>{
 	private static final long serialVersionUID = -6419255998877306908L;
 	
 	public static final String UIN ="UIN";
+	public static final String NIN ="NIN";
 	public static final String EMAIL ="email";
 	public static final String PHONE ="phone";
 	public static final String YEAR_OF_BIRTH ="yearOfBirth";
@@ -45,6 +46,9 @@ public class IdentityDTO extends LinkedHashMap<String, Object>{
 	
 	public String getUIN() {
 		return this.getAttribute(UIN);
+	}
+	public String getNIN() {
+		return this.getAttribute(NIN);
 	}
 	
 	public String getFace() {

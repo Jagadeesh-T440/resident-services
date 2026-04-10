@@ -122,7 +122,7 @@ public class ResidentOtpServiceImpl implements ResidentOtpService {
 			String individualId = individualIdAndType.getT1();
 			IdType idType = individualIdAndType.getT2();
 			
-			if(idType == IdType.NIN) {
+			if(idType == IdType.NIN|| idType==idType.HANDLE) {
 				individualId = individualId + "@nin";
 			}
 			
