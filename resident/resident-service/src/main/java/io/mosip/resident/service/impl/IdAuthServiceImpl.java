@@ -145,6 +145,7 @@ public class IdAuthServiceImpl implements IdAuthService {
 		AuthResponseDTO response = null;
 		String eventId = ResidentConstants.NOT_AVAILABLE;
 		boolean authStatus = false;
+		individualId=individualId.toLowerCase();
 		try {
 			response = internelOtpAuth(transactionId, individualId, otp);
 			if (response.getErrors() != null && !response.getErrors().isEmpty()) {

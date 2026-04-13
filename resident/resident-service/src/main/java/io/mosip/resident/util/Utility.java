@@ -950,19 +950,19 @@ public class Utility {
 	public <T> T getIdentityData(String id, Class<?> responseType) throws ApisResourceAccessException {
 		Map<String, String> pathSegments = new HashMap<String, String>();
 
-		if(!id.endsWith("@nin")&& id.length() != 29 && id.length()!= 22){
+		if(!id.endsWith("@nin")&& Character.isLetter(id.charAt(0))){
 			id = id.concat("@nin");
 		}
 		pathSegments.put("id", id);
 		
 		List<String> queryParamName = new ArrayList<String>();
 		queryParamName.add("type");
-		if(id.endsWith("@nin")&& id.length() != 29){
+		if(id.endsWith("@nin")&& Character.isLetter(id.charAt(0))){
 		queryParamName.add("idType");}
 		 
 		List<Object> queryParamValue = new ArrayList<>();
 		queryParamValue.add(RETRIEVE_IDENTITY_PARAM_TYPE_DEMO);
-		if(id.endsWith("@nin")&& id.length() != 29){
+		if(id.endsWith("@nin")&& Character.isLetter(id.charAt(0))){
 		queryParamValue.add("handle");}
 		return restClientWithSelfTOkenRestTemplate.getApi(ApiName.IDREPO_IDENTITY_URL,
 				pathSegments, queryParamName, queryParamValue, responseType);

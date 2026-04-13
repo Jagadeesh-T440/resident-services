@@ -36,6 +36,9 @@ public class VerificationServiceImpl implements VerificationService {
     
     @Value("${resident.channel.verification.status.id}")
     private String residentChannelVerificationStatusId;
+
+    @Value("${resident.multiple.verification:false}")
+    private boolean multipleVerification;
     
     @Value("${resident.channel.verification.status.version}")
     private String residentChannelVerificationStatusVersion;
@@ -49,12 +52,15 @@ public class VerificationServiceImpl implements VerificationService {
         VerificationResponseDTO verificationResponseDTO = new VerificationResponseDTO();
         boolean verificationStatus = false;
         String maskedUserId = "";
+        individualId=individualId.toLowerCase();
         IdentityDTO identityDTO = identityServiceImpl.getIdentity(individualId);
-        String idaToken = identityServiceImpl.getIDAToken(identityDTO.getUIN());
+        String nin=identityDTO.getNIN();
+        nin=nin.toLowerCase()+"@nin";
+        String idaToken = identityServiceImpl.getIDAToken(nin);
         boolean entityExist =
                 residentTransactionRepository.existsByRefIdAndStatusCode
                         (utility.getIdForResidentTransaction(List.of(channel), identityDTO, idaToken), EventStatusSuccess.OTP_VERIFIED.toString());
-        if (entityExist) {
+        if (entityExist && !multipleVerification) {
             verificationStatus = true;
             String userId = "";
             if(channel.equalsIgnoreCase(EMAIL)) {
