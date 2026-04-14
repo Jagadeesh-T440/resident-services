@@ -53,7 +53,7 @@ public enum RequestType implements PreUpdateInBatchJob {
 			}
 		}
 	},
-	GET_MY_ID("Get UIN Card", TemplateUtil::getAckTemplateVariablesForGetMyId,
+	GET_MY_ID("Get NIN/AIN Card", TemplateUtil::getAckTemplateVariablesForGetMyId,
 			TemplateUtil::getNotificationTemplateVariablesForGetMyId,
 			TemplateUtil::getDescriptionTemplateVariablesForGetMyId),
 	UPDATE_MY_UIN("Update UIN Data", TemplateUtil::getAckTemplateVariablesForUpdateMyUin,
