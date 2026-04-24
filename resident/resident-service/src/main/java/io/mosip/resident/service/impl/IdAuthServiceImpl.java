@@ -52,6 +52,7 @@ import io.mosip.resident.constant.AuthTypeStatus;
 import io.mosip.resident.constant.EventStatusFailure;
 import io.mosip.resident.constant.EventStatusInProgress;
 import io.mosip.resident.constant.EventStatusSuccess;
+import io.mosip.resident.constant.IdType;
 import io.mosip.resident.constant.LoggerFileConstant;
 import io.mosip.resident.constant.RequestType;
 import io.mosip.resident.constant.ResidentConstants;
@@ -404,14 +405,16 @@ public class IdAuthServiceImpl implements IdAuthService {
 		}
 		return "";
 	}
-	
+
 	@Override
 	public String authTypeStatusUpdate(String individualId, Map<String, AuthTypeStatus> authTypeStatusMap, Map<String, Long> unlockForSecondsMap)
 			throws ApisResourceAccessException {
+		String normalizedIndividualId = resolveUinForAuthTypeStatus(individualId);
 		AuthTypeStatusRequestDto authTypeStatusRequestDto = new AuthTypeStatusRequestDto();
 		authTypeStatusRequestDto.setConsentObtained(true);
 		authTypeStatusRequestDto.setId(authTypeStatusId);
-		authTypeStatusRequestDto.setIndividualId(individualId);
+		authTypeStatusRequestDto.setIndividualId(normalizedIndividualId);
+		authTypeStatusRequestDto.setIndividualIdType(IdType.UIN.name());
 		authTypeStatusRequestDto.setVersion(internalAuthVersion);
 		authTypeStatusRequestDto.setRequestTime(DateUtils.formatToISOString(DateUtils.getUTCCurrentDateTime()));
 		List<io.mosip.resident.dto.AuthTypeStatus> authTypes = new ArrayList<>();
@@ -437,7 +440,7 @@ public class IdAuthServiceImpl implements IdAuthService {
 			} else {
 				if (unlockForSecondsMap.get(entry.getKey()) != null) {
 					authTypeStatus.setUnlockForSeconds(unlockForSecondsMap.get(entry.getKey()));
-                }
+				}
 
 				authTypeStatus.setLocked(false);
 			}
@@ -445,6 +448,16 @@ public class IdAuthServiceImpl implements IdAuthService {
 			authTypes.add(authTypeStatus);
 		}
 		authTypeStatusRequestDto.setRequest(authTypes);
+		logger.info("IdAuthServiceImpl::authTypeStatusUpdate()::Auth lock/unlock request individualId received: {}",
+				individualId);
+		logger.info("IdAuthServiceImpl::authTypeStatusUpdate()::Auth lock/unlock request individualId sent as UIN: {}",
+				normalizedIndividualId);
+		logger.info("IdAuthServiceImpl::authTypeStatusUpdate()::Auth lock/unlock request payload authTypes: {}",
+				authTypes.stream()
+						.map(authType -> authType.getAuthType()
+								+ (authType.getAuthSubType() != null ? "-" + authType.getAuthSubType() : "")
+								+ ":" + authType.isLocked())
+						.collect(Collectors.joining(",")));
 		AuthTypeStatusResponseDto response;
 		try {
 			response = restClient.postApi(environment.getProperty(ApiName.AUTHTYPESTATUSUPDATE.name()),
@@ -468,6 +481,18 @@ public class IdAuthServiceImpl implements IdAuthService {
 
 		return requestIdForAuthLockUnLock;
 	}
+
+	private String resolveUinForAuthTypeStatus(String individualId) throws ApisResourceAccessException {
+		try {
+			return identityService.getUinForIndividualId(individualId);
+		} catch (ResidentServiceCheckedException e) {
+			logger.error(LoggerFileConstant.SESSIONID.toString(), LoggerFileConstant.USERID.toString(), null,
+					"IdAuthServiceImpl::authTypeStatusUpdate()::Failed to resolve UIN from individualId "
+							+ individualId + ExceptionUtils.getStackTrace(e));
+			throw new ApisResourceAccessException("Could not resolve UIN for auth status api", e);
+		}
+	}
+
 
 	@Override
 	public List<AuthTxnDetailsDTO> getAuthHistoryDetails(String individualId,
