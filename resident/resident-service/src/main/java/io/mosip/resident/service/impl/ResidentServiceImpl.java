@@ -1077,6 +1077,9 @@ public class ResidentServiceImpl implements ResidentService {
 		residentTransactionEntity.setConsent(dto.getConsent());
 		residentTransactionEntity.setStatusCode(EventStatusInProgress.NEW.name());
 		residentTransactionEntity.setStatusComment(attributeList+ResidentConstants.UPDATED);
+		logger.debug(String.format("Created update UIN resident transaction eventId=%s status=%s attributes=%s consent=%s",
+				residentTransactionEntity.getEventId(), residentTransactionEntity.getStatusCode(),
+				residentTransactionEntity.getAttributeList(), residentTransactionEntity.getConsent()));
 		return residentTransactionEntity;
 	}
 
@@ -1087,6 +1090,10 @@ public class ResidentServiceImpl implements ResidentService {
 		residentTransactionEntity.setCredentialRequestId(rid + utility.getRidDeliMeterValue());
 		residentTransactionEntity.setStatusCode(EventStatusInProgress.NEW.name());
 		residentTransactionEntity.setRequestSummary(EventStatusInProgress.NEW.name());
+		logger.debug(String.format("Updated resident transaction with packet details eventId=%s aid=%s status=%s requestSummary=%s credentialRequestId=%s attributes=%s",
+				residentTransactionEntity.getEventId(), residentTransactionEntity.getAid(),
+				residentTransactionEntity.getStatusCode(), residentTransactionEntity.getRequestSummary(),
+				residentTransactionEntity.getCredentialRequestId(), residentTransactionEntity.getAttributeList()));
 	}
 
 	private List<ResidentDocuments> getResidentDocuments(ResidentUpdateRequestDto dto, JSONObject mappingDocument)
@@ -1828,6 +1835,8 @@ public class ResidentServiceImpl implements ResidentService {
 			status = EventStatus.IN_PROGRESS;
 		}
 		String fileText = templateUtil.getEventStatusBasedOnLangcode(status, langCode);
+		logger.debug(String.format("Event status mapping rawStatus=%s mappedStatus=%s langCode=%s displayText=%s",
+				statusCode, status.name(), langCode, fileText));
 		return Tuples.of(status.name(), fileText);
 	}
 
@@ -1896,6 +1905,13 @@ public class ResidentServiceImpl implements ResidentService {
 			logger.debug("EventStatusId: {}", eventId);
 			logger.debug("EventStatusMap value: {}", eventStatusMap);
 			logger.debug("ResidentTransactionEntity value: {}", residentTransactionEntity);
+			logger.debug(String.format("Track request event status details eventId=%s rawStatus=%s requestType=%s attributes=%s requestSummary=%s credentialRequestId=%s referenceLinkPresent=%s",
+					eventId, residentTransactionEntity.get().getStatusCode(),
+					residentTransactionEntity.get().getRequestTypeCode(),
+					residentTransactionEntity.get().getAttributeList(),
+					residentTransactionEntity.get().getRequestSummary(),
+					residentTransactionEntity.get().getCredentialRequestId(),
+					residentTransactionEntity.get().getReferenceLink() != null));
 
 			EventStatusResponseDTO eventStatusResponseDTO = new EventStatusResponseDTO();
 			eventStatusResponseDTO.setEventId(eventId);
