@@ -120,6 +120,8 @@ public class CredentialStatusUpdateHelper {
 		if (!credentialStatus.isEmpty()) {
 			// Save the new status to the resident transaction entity
 			String newStatusCode = getStatusCode(credentialStatus);
+			logger.debug(String.format("CredentialStatusUpdateHelper status comparison eventId=%s oldStatus=%s newStatus=%s credentialStatus=%s",
+					txn.getEventId(), txn.getStatusCode(), newStatusCode, credentialStatus));
 			// If the status did not change, don't process it
 			if (newStatusCode != null && !txn.getStatusCode().equals(newStatusCode)) {
 				logger.debug(String.format("updating status for : %s as %s", txn.getEventId(), newStatusCode));
@@ -146,7 +148,13 @@ public class CredentialStatusUpdateHelper {
 					}
 				}
 				updateEntity(txn);
+			} else {
+				logger.debug(String.format("Credential status update skipped eventId=%s currentStatus=%s newStatus=%s",
+						txn.getEventId(), txn.getStatusCode(), newStatusCode));
 			}
+		} else {
+			logger.debug(String.format("Credential status update skipped because response is empty eventId=%s currentStatus=%s credentialRequestId=%s",
+					txn.getEventId(), txn.getStatusCode(), txn.getCredentialRequestId()));
 		}
 	}
 

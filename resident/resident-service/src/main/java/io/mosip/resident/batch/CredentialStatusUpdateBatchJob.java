@@ -106,13 +106,24 @@ public class CredentialStatusUpdateBatchJob {
 	public void updateTransactionStatus(ResidentTransactionEntity txn)
 			throws ResidentServiceCheckedException, ApisResourceAccessException {
 		String requestTypeCode = txn.getRequestTypeCode();
+		logger.debug(String.format("Credential status batch evaluating eventId=%s aid=%s currentStatus=%s requestType=%s credentialRequestId=%s attributes=%s",
+				txn.getEventId(), txn.getAid(), txn.getStatusCode(), requestTypeCode,
+				txn.getCredentialRequestId(), txn.getAttributeList()));
 		if (requestTypeCodesToProcessInBatchJob.contains(requestTypeCode)) {
 			RequestType requestType = RequestType.getRequestTypeFromString(requestTypeCode);
 			// If it is already a success / failed status, do not process it.
 			if (!requestType.isSuccessOrFailedStatus(env, txn.getStatusCode())) {
 				Map<String, String> credentialStatus = getCredentialStatusForEntity(txn);
+				logger.debug(String.format("Credential status batch response eventId=%s credentialRequestId=%s response=%s",
+						txn.getEventId(), txn.getCredentialRequestId(), credentialStatus));
 				credentialStatusUpdateHelper.updateStatus(txn, credentialStatus);
+			} else {
+				logger.debug(String.format("Credential status batch skipped terminal eventId=%s status=%s requestType=%s",
+						txn.getEventId(), txn.getStatusCode(), requestTypeCode));
 			}
+		} else {
+			logger.debug(String.format("Credential status batch skipped unsupported requestType eventId=%s requestType=%s configuredTypes=%s",
+					txn.getEventId(), requestTypeCode, requestTypeCodesToProcessInBatchJob));
 		}
 	}
 	

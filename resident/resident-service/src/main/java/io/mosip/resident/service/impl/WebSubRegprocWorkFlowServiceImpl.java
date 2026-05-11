@@ -45,29 +45,57 @@ public class WebSubRegprocWorkFlowServiceImpl implements WebSubRegprocWorkFlowSe
 
     @Override
     public void updateResidentStatus(WorkflowCompletedEventDTO workflowCompletedEventDTO) throws ResidentServiceCheckedException {
-        logger.debug("WebSubRegprocWorkFlowServiceImpl:updateResidentStatus entry");
+        logger.debug(String.format("WebSubRegprocWorkFlowServiceImpl:updateResidentStatus entry instanceId=%s resultCode=%s workflowType=%s",
+                workflowCompletedEventDTO.getInstanceId(), workflowCompletedEventDTO.getResultCode(),
+                workflowCompletedEventDTO.getWorkflowType()));
         ResidentTransactionEntity residentTransactionEntity = null;
         String individualId = null;
         if (workflowCompletedEventDTO.getResultCode() != null) {
             if (workflowCompletedEventDTO.getInstanceId() != null) {
                 residentTransactionEntity =
                         residentTransactionRepository.findTopByAidOrderByCrDtimesDesc(workflowCompletedEventDTO.getInstanceId());
+                if (residentTransactionEntity == null) {
+                    logger.debug(String.format("No resident transaction found for regproc callback aid=%s resultCode=%s",
+                            workflowCompletedEventDTO.getInstanceId(), workflowCompletedEventDTO.getResultCode()));
+                }
+            } else {
+                logger.debug(String.format("Regproc callback skipped because instanceId is null resultCode=%s",
+                        workflowCompletedEventDTO.getResultCode()));
             }
             if (residentTransactionEntity != null) {
                 individualId = residentTransactionEntity.getIndividualId();
+                logger.debug(String.format("Regproc callback matched eventId=%s aid=%s currentStatus=%s attributes=%s credentialRequestId=%s",
+                        residentTransactionEntity.getEventId(), residentTransactionEntity.getAid(),
+                        residentTransactionEntity.getStatusCode(), residentTransactionEntity.getAttributeList(),
+                        residentTransactionEntity.getCredentialRequestId()));
+                logger.debug(String.format("Configured regproc success statuses=%s failure statuses=%s",
+                        PacketStatus.getStatusCodeList(PacketStatus.SUCCESS, environment),
+                        PacketStatus.getStatusCodeList(PacketStatus.FAILURE, environment)));
                 if (PacketStatus.getStatusCodeList(PacketStatus.FAILURE, environment).contains(workflowCompletedEventDTO.getResultCode())) {
+                    logger.debug(String.format("Updating resident transaction as FAILED for eventId=%s aid=%s resultCode=%s",
+                            residentTransactionEntity.getEventId(), residentTransactionEntity.getAid(),
+                            workflowCompletedEventDTO.getResultCode()));
                     utility.updateEntity(EventStatusFailure.FAILED.name(), RequestType.UPDATE_MY_UIN.name() + " - " + ResidentConstants.FAILED,
                             false, "Packet Failed in Regproc with status code-" +
                             workflowCompletedEventDTO.getResultCode(), residentTransactionEntity);
                     utility.sendNotification(residentTransactionEntity.getEventId(), individualId, TemplateType.REGPROC_FAILED);
                 } else if (PacketStatus.getStatusCodeList(PacketStatus.SUCCESS, environment).contains(workflowCompletedEventDTO.getResultCode())) {
                     String statusCode = getStatusCodeForSuccessfulUpdate(residentTransactionEntity);
+                    logger.debug(String.format("Updating resident transaction after successful regproc eventId=%s aid=%s attributes=%s newStatus=%s",
+                            residentTransactionEntity.getEventId(), residentTransactionEntity.getAid(),
+                            residentTransactionEntity.getAttributeList(), statusCode));
                     utility.updateEntity(statusCode, statusCode, false,
                             "Packet processed in Regproc with status code-" +
                             workflowCompletedEventDTO.getResultCode(), residentTransactionEntity);
                     utility.sendNotification(residentTransactionEntity.getEventId(), individualId, TemplateType.REGPROC_SUCCESS);
+                } else {
+                    logger.debug(String.format("Regproc callback resultCode did not match configured success/failure lists eventId=%s aid=%s resultCode=%s",
+                            residentTransactionEntity.getEventId(), residentTransactionEntity.getAid(),
+                            workflowCompletedEventDTO.getResultCode()));
                 }
             }
+        } else {
+            logger.debug("Regproc callback skipped because resultCode is null");
         }
         logger.debug("WebSubRegprocWorkFlowServiceImpl:updateResidentStatus exit");
     }
@@ -89,7 +117,10 @@ public class WebSubRegprocWorkFlowServiceImpl implements WebSubRegprocWorkFlowSe
                 .filter(attribute -> !IdType.NIN.name().equalsIgnoreCase(attribute))
                 .map(String::toLowerCase)
                 .collect(java.util.stream.Collectors.toSet());
-        return !updateAttributes.isEmpty() && CONTACT_DETAIL_ATTRIBUTES.containsAll(updateAttributes);
+        boolean contactDetailsUpdate = !updateAttributes.isEmpty() && CONTACT_DETAIL_ATTRIBUTES.containsAll(updateAttributes);
+        logger.debug(String.format("Contact details update check originalAttributes=%s normalizedAttributes=%s result=%s",
+                attributeList, updateAttributes, contactDetailsUpdate));
+        return contactDetailsUpdate;
     }
 
 }

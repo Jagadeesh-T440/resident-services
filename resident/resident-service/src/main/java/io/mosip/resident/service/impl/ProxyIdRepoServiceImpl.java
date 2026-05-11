@@ -215,8 +215,13 @@ public class ProxyIdRepoServiceImpl implements ProxyIdRepoService {
 		List<DraftUinResidentResponseDto> draftUinResidentResponseDtos = new ArrayList<>();
 		DraftResidentResponseDto draftResidentResponseDto = new DraftResidentResponseDto();
 		Set<String> eventIdList = new HashSet<>();
+		logger.debug(String.format("ProxyIdRepoServiceImpl::convertDraftResponseDtoToResidentResponseDTo() idrepoDraftCount=%s langCode=%s",
+				draftsList == null ? 0 : draftsList.size(), langCode));
 		if(draftsList!=null && !draftsList.isEmpty()) {
 			for (DraftUinResponseDto draftUinResponseDto : draftsList) {
+				logger.debug(String.format("Processing idrepo pending draft rid=%s attributes=%s createdDtimes=%s",
+						draftUinResponseDto.getRid(), draftUinResponseDto.getAttributes(),
+						draftUinResponseDto.getCreatedDTimes()));
 				String eventId = setDraftValue(draftUinResponseDto.getRid(), individualId, draftUinResponseDto.getAttributes(),
 						null, draftUinResponseDto.getCreatedDTimes(), draftUinResidentResponseDtos, true, langCode, null);
 				eventIdList.add(eventId);
@@ -225,9 +230,15 @@ public class ProxyIdRepoServiceImpl implements ProxyIdRepoService {
 		List<ResidentTransactionEntity> residentTransactionEntityList = residentTransactionRepository.
 				findByTokenIdAndRequestTypeCodeAndStatusCode(identityServiceImpl.getResidentIdaToken(), RequestType.UPDATE_MY_UIN.name(),
 						EventStatusInProgress.NEW.name());
+		logger.debug(String.format("Resident NEW update draft count=%s eventIdsFromIdrepo=%s",
+				residentTransactionEntityList.size(), eventIdList));
 		if(!residentTransactionEntityList.isEmpty()){
 			for(ResidentTransactionEntity residentTransactionEntity:residentTransactionEntityList){
 				if(!eventIdList.contains(residentTransactionEntity.getEventId()) && residentTransactionEntity.getAttributeList()!=null) {
+					logger.debug(String.format("Adding resident transaction pending draft eventId=%s aid=%s status=%s attributes=%s credentialRequestId=%s",
+							residentTransactionEntity.getEventId(), residentTransactionEntity.getAid(),
+							residentTransactionEntity.getStatusCode(), residentTransactionEntity.getAttributeList(),
+							residentTransactionEntity.getCredentialRequestId()));
 					setDraftValue(residentTransactionEntity.getAid(), individualId,
 							List.of(residentTransactionEntity.getAttributeList().split(ResidentConstants.COMMA)),
 							residentTransactionEntity.getEventId(), residentTransactionEntity.getCrDtimes().toString(),
@@ -250,6 +261,9 @@ public class ProxyIdRepoServiceImpl implements ProxyIdRepoService {
 		if (eventId == null) {
 			eventId = residentTransactionEntity.getEventId();
 		}
+		logger.debug(String.format("Preparing pending draft response eventId=%s aid=%s status=%s requestSummary=%s attributes=%s cancellable=%s",
+				eventId, rid, residentTransactionEntity.getStatusCode(), residentTransactionEntity.getRequestSummary(),
+				attributeList, cancellableStatus));
 		draftUinResidentResponseDto.setEid(eventId);
 		draftUinResidentResponseDto.setAid(rid);
 		draftUinResidentResponseDto.setAttributes(attributeList);
@@ -266,12 +280,17 @@ public class ProxyIdRepoServiceImpl implements ProxyIdRepoService {
 			return "";
 		}
 		Tuple2<String, String> statusCodes = residentService.getEventStatusCode(residentTransactionEntity.getStatusCode(), langCode);
+		logger.debug(String.format("Pending draft description status mapping eventId=%s rawStatus=%s eventStatusEnum=%s eventStatusText=%s attributes=%s",
+				residentTransactionEntity.getEventId(), residentTransactionEntity.getStatusCode(), statusCodes.getT1(),
+				statusCodes.getT2(), residentTransactionEntity.getAttributeList()));
 		return residentService.getDescriptionForLangCode(residentTransactionEntity, langCode, statusCodes.getT1(),
 				RequestType.valueOf(residentTransactionEntity.getRequestTypeCode()));
 	}
 
 	private ResidentTransactionEntity getEventIdFromRid(String rid, String individualId, List<String> attributes) throws ResidentServiceCheckedException, ApisResourceAccessException {
 		ResidentTransactionEntity residentTransactionEntityAlreadyPresent = residentTransactionRepository.findTopByAidOrderByCrDtimesDesc(rid);
+		logger.debug(String.format("Lookup resident transaction for idrepo draft rid=%s found=%s", rid,
+				residentTransactionEntityAlreadyPresent != null));
 		String eventId = residentTransactionEntityAlreadyPresent.getEventId();
 		if(eventId == null){
 			ResidentTransactionEntity residentTransactionEntity = utility.createEntity(RequestType.UPDATE_MY_UIN);
@@ -293,8 +312,16 @@ public class ProxyIdRepoServiceImpl implements ProxyIdRepoService {
 			residentTransactionEntity.setStatusCode(EventStatusInProgress.NEW.name());
 			residentTransactionEntity.setRequestSummary(EventStatusInProgress.NEW.name());
 			residentTransactionRepository.save(residentTransactionEntity);
+			logger.debug(String.format("Created resident transaction from idrepo draft eventId=%s rid=%s status=%s attributes=%s credentialRequestId=%s",
+					eventId, rid, residentTransactionEntity.getStatusCode(),
+					residentTransactionEntity.getAttributeList(), residentTransactionEntity.getCredentialRequestId()));
 			return residentTransactionEntity;
 		}
+		logger.debug(String.format("Existing resident transaction for idrepo draft eventId=%s rid=%s status=%s attributes=%s requestSummary=%s credentialRequestId=%s",
+				eventId, rid, residentTransactionEntityAlreadyPresent.getStatusCode(),
+				residentTransactionEntityAlreadyPresent.getAttributeList(),
+				residentTransactionEntityAlreadyPresent.getRequestSummary(),
+				residentTransactionEntityAlreadyPresent.getCredentialRequestId()));
 		return residentTransactionEntityAlreadyPresent;
 	}
 
