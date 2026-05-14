@@ -186,13 +186,24 @@ public class IdAuthServiceImpl implements IdAuthService {
 
 	private void sendNotificationV2(String id, TemplateType templateType, String eventId, String channels, Map identity)
 			throws ResidentServiceCheckedException {
-		NotificationRequestDtoV2 notificationRequestDtoV2 = new NotificationRequestDtoV2();
-		notificationRequestDtoV2.setId(id);
-		notificationRequestDtoV2.setRequestType(RequestType.VALIDATE_OTP);
-		notificationRequestDtoV2.setTemplateType(templateType);
-		notificationRequestDtoV2.setEventId(eventId);
-		notificationService.sendNotification(notificationRequestDtoV2,
-				(channels != null ? List.of(channels.split(ResidentConstants.ATTRIBUTE_LIST_DELIMITER)) : null), null, null, identity);
+		try {
+			NotificationRequestDtoV2 notificationRequestDtoV2 = new NotificationRequestDtoV2();
+			notificationRequestDtoV2.setId(id);
+			notificationRequestDtoV2.setRequestType(RequestType.VALIDATE_OTP);
+			notificationRequestDtoV2.setTemplateType(templateType);
+			notificationRequestDtoV2.setEventId(eventId);
+			notificationService.sendNotification(notificationRequestDtoV2,
+					(channels != null ? List.of(channels.split(ResidentConstants.ATTRIBUTE_LIST_DELIMITER)) : null), null, null, identity);
+		}
+		catch (Exception e) {
+			logger.error(
+					LoggerFileConstant.APPLICATIONID.toString(),
+					LoggerFileConstant.UIN.name(),
+					eventId,
+					"Notification failed but main flow will continue: "
+							+ e.getMessage()
+			);
+		}
 	}
 
 	@Override
