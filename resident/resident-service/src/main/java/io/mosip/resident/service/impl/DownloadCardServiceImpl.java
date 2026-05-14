@@ -568,13 +568,24 @@ public class DownloadCardServiceImpl implements DownloadCardService {
 
 	private void sendNotificationV2(String id, RequestType requestType, TemplateType templateType, String eventId,
 									Map<String, Object> additionalAttributes, Map identity) throws ResidentServiceCheckedException {
-		NotificationRequestDtoV2 notificationRequestDtoV2 = new NotificationRequestDtoV2();
-		notificationRequestDtoV2.setId(id);
-		notificationRequestDtoV2.setRequestType(requestType);
-		notificationRequestDtoV2.setTemplateType(templateType);
-		notificationRequestDtoV2.setEventId(eventId);
-		notificationRequestDtoV2.setAdditionalAttributes(additionalAttributes);
-		notificationService.sendNotification(notificationRequestDtoV2, identity);
+		try {
+			NotificationRequestDtoV2 notificationRequestDtoV2 = new NotificationRequestDtoV2();
+			notificationRequestDtoV2.setId(id);
+			notificationRequestDtoV2.setRequestType(requestType);
+			notificationRequestDtoV2.setTemplateType(templateType);
+			notificationRequestDtoV2.setEventId(eventId);
+			notificationRequestDtoV2.setAdditionalAttributes(additionalAttributes);
+			notificationService.sendNotification(notificationRequestDtoV2, identity);
+		}
+		catch (Exception e) {
+			logger.error(
+					LoggerFileConstant.APPLICATIONID.toString(),
+					LoggerFileConstant.UIN.name(),
+					eventId,
+					"Notification failed but main flow will continue: "
+							+ e.getMessage()
+			);
+		}
 	}
 
 }

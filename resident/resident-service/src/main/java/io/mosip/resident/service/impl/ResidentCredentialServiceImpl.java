@@ -590,12 +590,24 @@ public class ResidentCredentialServiceImpl implements ResidentCredentialService 
 	private NotificationResponseDTO sendNotificationV2(String id, RequestType requestType, TemplateType templateType,
 			String eventId, Map<String, Object> additionalAttributes) throws ResidentServiceCheckedException {
 
-		NotificationRequestDtoV2 notificationRequestDtoV2 = new NotificationRequestDtoV2();
-		notificationRequestDtoV2.setId(id);
-		notificationRequestDtoV2.setRequestType(requestType);
-		notificationRequestDtoV2.setTemplateType(templateType);
-		notificationRequestDtoV2.setEventId(eventId);
-		notificationRequestDtoV2.setAdditionalAttributes(additionalAttributes);
-		return notificationService.sendNotification(notificationRequestDtoV2, null);
+		try {
+			NotificationRequestDtoV2 notificationRequestDtoV2 = new NotificationRequestDtoV2();
+			notificationRequestDtoV2.setId(id);
+			notificationRequestDtoV2.setRequestType(requestType);
+			notificationRequestDtoV2.setTemplateType(templateType);
+			notificationRequestDtoV2.setEventId(eventId);
+			notificationRequestDtoV2.setAdditionalAttributes(additionalAttributes);
+			return notificationService.sendNotification(notificationRequestDtoV2, null);
+		}
+		catch (Exception e) {
+			logger.error(
+					LoggerFileConstant.APPLICATIONID.toString(),
+					LoggerFileConstant.UIN.name(),
+					eventId,
+					"Notification failed but main flow will continue: "
+							+ e.getMessage()
+			);
+			return null;
+		}
 	}
 }
