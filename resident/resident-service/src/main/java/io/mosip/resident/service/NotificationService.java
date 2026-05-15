@@ -280,16 +280,29 @@ public class NotificationService {
 	}
 
 	private boolean sendSMSNotification(Map<String, Object> mailingAttributes,
-			NotificationTemplateCode notificationTemplate, RequestType requestType, TemplateType templateType, Set<String> templateLangauges)
-			throws ResidentServiceCheckedException {
+			NotificationTemplateCode notificationTemplate, RequestType requestType, TemplateType templateType, Set<String> templateLangauges) {
 		logger.debug(LoggerFileConstant.APPLICATIONID.toString(), LoggerFileConstant.UIN.name(), " ",
 				"NotificationService::sendSMSNotification()::entry");
 		String eventId=(String) mailingAttributes.get(TemplateVariablesConstants.EVENT_ID);
 		String phone="";
-		if(mailingAttributes.get(TemplateVariablesConstants.PHONE)== null){
-			phone = (String) mailingAttributes.get(utilities.getPhoneAttribute());
-		} else{
-			phone =  (String) mailingAttributes.get(TemplateVariablesConstants.PHONE);
+		try {
+			if (mailingAttributes.get(TemplateVariablesConstants.PHONE) == null) {
+				phone = (String) mailingAttributes.get(utilities.getPhoneAttribute());
+			} else {
+				phone = (String) mailingAttributes.get(TemplateVariablesConstants.PHONE);
+			}
+		}
+		catch (ResidentServiceCheckedException e) {
+
+			logger.error(
+					LoggerFileConstant.APPLICATIONID.toString(),
+					LoggerFileConstant.UIN.name(),
+					eventId,
+					"Failed to fetch phone attribute, continuing flow :: "
+							+ ExceptionUtils.getStackTrace(e)
+			);
+
+			return false;
 		}
 
 		if (nullValueCheck(phone) || !(requestValidator.phoneValidator(phone))) {
@@ -298,30 +311,44 @@ public class NotificationService {
 			return false;
 		}
 		String mergedTemplate = "";
-		for (String language : templateLangauges) {
-			String languageTemplate = "";
-			if(notificationTemplate==null) {
-				if(mailingAttributes.get(TemplateVariablesConstants.PHONE)== null){
-					languageTemplate = templateMerge(getTemplate(language, templateUtil.getSmsTemplateTypeCode(requestType, templateType)),
-							requestType.getNotificationTemplateVariables(templateUtil, new NotificationTemplateVariableDTO(eventId, requestType, templateType, language), mailingAttributes));
-				} else{
-					languageTemplate = templateMerge(getTemplate(language, templateUtil.getSmsTemplateTypeCode(requestType, templateType)),
-							requestType.getNotificationTemplateVariables(templateUtil, new NotificationTemplateVariableDTO(eventId, requestType, templateType, language, (String) mailingAttributes.get(TemplateVariablesConstants.OTP)), mailingAttributes));
-				}
+		try {
+			for (String language : templateLangauges) {
+				String languageTemplate = "";
+				if (notificationTemplate == null) {
+					if (mailingAttributes.get(TemplateVariablesConstants.PHONE) == null) {
+						languageTemplate = templateMerge(getTemplate(language, templateUtil.getSmsTemplateTypeCode(requestType, templateType)),
+								requestType.getNotificationTemplateVariables(templateUtil, new NotificationTemplateVariableDTO(eventId, requestType, templateType, language), mailingAttributes));
+					} else {
+						languageTemplate = templateMerge(getTemplate(language, templateUtil.getSmsTemplateTypeCode(requestType, templateType)),
+								requestType.getNotificationTemplateVariables(templateUtil, new NotificationTemplateVariableDTO(eventId, requestType, templateType, language, (String) mailingAttributes.get(TemplateVariablesConstants.OTP)), mailingAttributes));
+					}
 
-			} else {
-				languageTemplate = templateMerge(getTemplate(language, notificationTemplate + SMS),
-						mailingAttributes);
+				} else {
+					languageTemplate = templateMerge(getTemplate(language, notificationTemplate + SMS),
+							mailingAttributes);
+				}
+				if (languageTemplate.trim().endsWith(LINE_BREAK)) {
+					languageTemplate = languageTemplate.substring(0, languageTemplate.length() - LINE_BREAK.length()).trim();
+				}
+				if (mergedTemplate.isBlank()) {
+					mergedTemplate = languageTemplate;
+				} else {
+					mergedTemplate = mergedTemplate + LINE_SEPARATOR
+							+ languageTemplate;
+				}
 			}
-			if(languageTemplate.trim().endsWith(LINE_BREAK)) {
-				languageTemplate = languageTemplate.substring(0, languageTemplate.length() - LINE_BREAK.length()).trim();
-			}
-			if (mergedTemplate.isBlank()) {
-				mergedTemplate = languageTemplate;
-			}else {
-				mergedTemplate = mergedTemplate + LINE_SEPARATOR
-						+ languageTemplate;
-			}
+		}
+		catch (ResidentServiceCheckedException e) {
+
+			logger.error(
+					LoggerFileConstant.APPLICATIONID.toString(),
+					LoggerFileConstant.UIN.name(),
+					eventId,
+					"Failed to prepare SMS template, continuing flow :: "
+							+ ExceptionUtils.getStackTrace(e)
+			);
+
+			return false;
 		}
 		SMSRequestDTO smsRequestDTO = new SMSRequestDTO();
 		smsRequestDTO.setMessage(mergedTemplate);
@@ -333,9 +360,17 @@ public class NotificationService {
 			resp = restClient.postApi(env.getProperty(ApiName.SMSNOTIFIER.name()), MediaType.APPLICATION_JSON, req,
 					ResponseWrapper.class);
 			if (nullCheckForResponse(resp)) {
-				throw new ResidentServiceException(ResidentErrorCode.INVALID_API_RESPONSE.getErrorCode(),
-						ResidentErrorCode.INVALID_API_RESPONSE.getErrorMessage() + " SMSNOTIFIER API"
-								+ (resp != null ? resp.getErrors().get(0) : ""));
+//				throw new ResidentServiceException(ResidentErrorCode.INVALID_API_RESPONSE.getErrorCode(),
+//						ResidentErrorCode.INVALID_API_RESPONSE.getErrorMessage() + " SMSNOTIFIER API"
+//								+ (resp != null ? resp.getErrors().get(0) : ""));
+				logger.error(
+						LoggerFileConstant.APPLICATIONID.toString(),
+						LoggerFileConstant.UIN.name(),
+						eventId,
+						"Invalid response from SMS notifier API, continuing flow"
+				);
+
+				return false;
 			}
 			NotificationResponseDTO notifierResponse = JsonUtil
 					.readValue(JsonUtil.writeValueAsString(resp.getResponse()), NotificationResponseDTO.class);
@@ -354,31 +389,31 @@ public class NotificationService {
 				HttpClientErrorException httpClientException = (HttpClientErrorException) e.getCause();
 				logger.error(LoggerFileConstant.SESSIONID.toString(), LoggerFileConstant.REGISTRATIONID.toString(), "",
 						e.getMessage() + httpClientException.getResponseBodyAsString());
-				throw new ResidentServiceCheckedException(
-						ResidentErrorCode.API_RESOURCE_ACCESS_EXCEPTION.getErrorCode(),
-						httpClientException.getResponseBodyAsString());
+//				throw new ResidentServiceCheckedException(
+//						ResidentErrorCode.API_RESOURCE_ACCESS_EXCEPTION.getErrorCode(),
+//						httpClientException.getResponseBodyAsString());
 
 			} else if (e.getCause() instanceof HttpServerErrorException) {
 				HttpServerErrorException httpServerException = (HttpServerErrorException) e.getCause();
 				logger.error(LoggerFileConstant.SESSIONID.toString(), LoggerFileConstant.REGISTRATIONID.toString(), "",
 						e.getMessage() + httpServerException.getResponseBodyAsString());
-				throw new ResidentServiceCheckedException(
-						ResidentErrorCode.API_RESOURCE_ACCESS_EXCEPTION.getErrorCode(),
-						httpServerException.getResponseBodyAsString());
+//				throw new ResidentServiceCheckedException(
+//						ResidentErrorCode.API_RESOURCE_ACCESS_EXCEPTION.getErrorCode(),
+//						httpServerException.getResponseBodyAsString());
 			} else {
 				logger.error(LoggerFileConstant.SESSIONID.toString(), LoggerFileConstant.REGISTRATIONID.toString(), "",
 						e.getMessage() + ExceptionUtils.getStackTrace(e));
-				throw new ResidentServiceCheckedException(
-						ResidentErrorCode.API_RESOURCE_ACCESS_EXCEPTION.getErrorCode(),
-						ResidentErrorCode.API_RESOURCE_ACCESS_EXCEPTION.getErrorMessage() + e.getMessage(), e);
+//				throw new ResidentServiceCheckedException(
+//						ResidentErrorCode.API_RESOURCE_ACCESS_EXCEPTION.getErrorCode(),
+//						ResidentErrorCode.API_RESOURCE_ACCESS_EXCEPTION.getErrorMessage() + e.getMessage(), e);
 			}
 
 		} catch (IOException e) {
 			logger.error(LoggerFileConstant.SESSIONID.toString(), LoggerFileConstant.REGISTRATIONID.toString(), "",
 					e.getMessage() + ExceptionUtils.getStackTrace(e));
 			audit.setAuditRequestDto(AuditEnum.TOKEN_GENERATION_FAILED);
-			throw new ResidentServiceCheckedException(ResidentErrorCode.TOKEN_GENERATION_FAILED.getErrorCode(),
-					ResidentErrorCode.TOKEN_GENERATION_FAILED.getErrorMessage(), e);
+//			throw new ResidentServiceCheckedException(ResidentErrorCode.TOKEN_GENERATION_FAILED.getErrorCode(),
+//					ResidentErrorCode.TOKEN_GENERATION_FAILED.getErrorMessage(), e);
 		}
 		logger.debug(LoggerFileConstant.APPLICATIONID.toString(), LoggerFileConstant.UIN.name(), " ",
 				"NotificationService::sendSMSNotification()::exit");
