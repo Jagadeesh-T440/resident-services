@@ -23,6 +23,7 @@ on:
       - tf_nira_dev
       - verify
       - tf_nira_preprod
+      - tf_nira_prod
 
 jobs:
   build-maven-resident-services:
