@@ -206,14 +206,24 @@ public class DownloadCardController {
                 .body(responseWrapper);
     }
 
-	@Timed(value=API_RESPONSE_TIME_ID, description=API_RESPONSE_TIME_DESCRIPTION, percentiles = {0.5, 0.9, 0.95, 0.99})
-	@GetMapping("/getNin/{rid}")
-	public ResponseEntity<Object> getNIN(@PathVariable("rid") String rid)
+	@Timed(value=API_RESPONSE_TIME_ID,description=API_RESPONSE_TIME_DESCRIPTION, percentiles = {0.5, 0.9, 0.95, 0.99} )
+	@PostMapping("/getNin")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Get NIN from IDREPO", content = @Content(array = @ArraySchema(schema = @Schema(implementation = ResponseWrapper.class)))),
+			@ApiResponse(responseCode = "400", description = "IDREPO Call Failed", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
+	public ResponseEntity<Object> getNin(
+			@Validated @RequestBody MainRequestDTO<DownloadCardRequestDTO> downloadCardRequestDTOMainRequestDTO,
+			@RequestHeader(name = "time-zone-offset", required = false, defaultValue = "0") int timeZoneOffset,
+			@RequestHeader(name = "locale", required = false) String locale)
 			throws BaseCheckedException, IOException {
 		logger.debug("DownloadCardController::getNIN()::entry");
 		try {
-			requestValidator.validateAidStatusIndividualId(rid);
-			ResponseWrapper<Object> response = downloadCardService.getNINFromIndividualId(rid);
+			requestValidator.validateDownloadCardRequest(downloadCardRequestDTOMainRequestDTO);
+			String individualId = downloadCardRequestDTOMainRequestDTO.getRequest().getIndividualId();
+			ResponseWrapper<Object> response = downloadCardService.getNINFromIndividualId(individualId);
 			logger.debug("DownloadCardController::getNIN()::exit");
 			return ResponseEntity.ok(response);
 		} catch (ResidentServiceException | InvalidInputException e) {
