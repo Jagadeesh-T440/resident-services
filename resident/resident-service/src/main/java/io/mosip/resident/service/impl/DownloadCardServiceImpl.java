@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.resident.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -469,8 +470,14 @@ public class DownloadCardServiceImpl implements DownloadCardService {
 									+ " --> " + idResponseDTO1.getErrors().get(0).getMessage());
 				}
 				if (idResponseDTO1.getResponse() != null) {
-					Map<String, Object> identity = (Map<String, Object>) idResponseDTO1.getResponse();
-					nin = (String) identity.get("NIN");
+					ObjectMapper mapper = new ObjectMapper();
+
+					Map<String, Object> responseMap  =
+							mapper.convertValue(idResponseDTO1.getResponse(), Map.class);
+					Map<String, Object> identityMap =
+							(Map<String, Object>) responseMap.get("identity");
+
+					nin = (String) identityMap.get("NIN");
 				}
 			}
 			Map<String, Object> resp = new HashMap<>();

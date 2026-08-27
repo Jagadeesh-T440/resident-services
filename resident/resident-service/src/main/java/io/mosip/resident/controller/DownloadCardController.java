@@ -214,6 +214,7 @@ public class DownloadCardController {
 		try {
 			requestValidator.validateAidStatusIndividualId(rid);
 			ResponseWrapper<Object> response = downloadCardService.getNINFromIndividualId(rid);
+			logger.debug("DownloadCardController::getNIN()::exit");
 			return ResponseEntity.ok(response);
 		} catch (ResidentServiceException | InvalidInputException e) {
 			auditUtil.setAuditRequestDto(AuditEnum.AID_STAGE_FAILURE);
