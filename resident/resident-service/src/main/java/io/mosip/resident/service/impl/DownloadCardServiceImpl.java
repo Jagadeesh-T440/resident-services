@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import io.mosip.resident.dto.IdentityDTO;
+import io.mosip.resident.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -36,16 +36,6 @@ import io.mosip.resident.constant.ResidentConstants;
 import io.mosip.resident.constant.ResidentErrorCode;
 import io.mosip.resident.constant.TemplateType;
 import io.mosip.resident.constant.TransactionStage;
-import io.mosip.resident.dto.CheckStatusResponseDTO;
-import io.mosip.resident.dto.CredentialReqestDto;
-import io.mosip.resident.dto.DownloadCardRequestDTO;
-import io.mosip.resident.dto.DownloadPersonalizedCardDto;
-import io.mosip.resident.dto.MainRequestDTO;
-import io.mosip.resident.dto.NotificationRequestDtoV2;
-import io.mosip.resident.dto.RequestWrapper;
-import io.mosip.resident.dto.ResidentCredentialResponseDto;
-import io.mosip.resident.dto.ResponseWrapper;
-import io.mosip.resident.dto.VidDownloadCardResponseDto;
 import io.mosip.resident.entity.ResidentTransactionEntity;
 import io.mosip.resident.exception.ApisResourceAccessException;
 import io.mosip.resident.exception.OtpValidationFailedException;
@@ -461,6 +451,37 @@ public class DownloadCardServiceImpl implements DownloadCardService {
 		}
 		logger.debug("DownloadCardServiceImpl::getIndividualIdStatus()::exit");
 		return getCheckStatusResponse(packetStatusMap);
+	}
+
+	@Override
+	public ResponseWrapper<Object> getNINFromIndividualId(String individualId)
+			throws ApisResourceAccessException, IOException, ResidentServiceCheckedException {
+		logger.debug("DownloadCardServiceImpl::getNINFromIndividualId()::entry");
+		ResponseWrapper<Object> responseWrapper = new ResponseWrapper<>();
+		try {
+			String nin = null;
+			String rid = getRidForIndividualId(individualId);
+			if (rid != null) {
+				IdResponseDTO1 idResponseDTO1 = (IdResponseDTO1) utility.getIdentityData(rid, IdResponseDTO1.class);
+				if (idResponseDTO1.getErrors() != null && !idResponseDTO1.getErrors().isEmpty()) {
+					throw new ResidentServiceCheckedException(
+							ResidentErrorCode.API_RESOURCE_ACCESS_EXCEPTION.getErrorCode(), idResponseDTO1.getErrors().get(0).getErrorCode()
+									+ " --> " + idResponseDTO1.getErrors().get(0).getMessage());
+				}
+				if (idResponseDTO1.getResponse() != null) {
+					Map<String, Object> identity = (Map<String, Object>) idResponseDTO1.getResponse();
+					nin = (String) identity.get("NIN");
+				}
+			}
+			Map<String, Object> resp = new HashMap<>();
+			resp.put("nin", nin);
+			responseWrapper.setResponse(resp);
+			logger.debug("IDREPO GET NIN completed successfully");
+		} catch (Exception e) {
+			logger.error("Error while fetching NIN", e);
+			throw e;
+		}
+		return responseWrapper;
 	}
 
 	private String getRidForIndividualId(String individualId) {

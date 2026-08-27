@@ -205,4 +205,23 @@ public class DownloadCardController {
         return ResponseEntity.ok()
                 .body(responseWrapper);
     }
+
+	@Timed(value=API_RESPONSE_TIME_ID, description=API_RESPONSE_TIME_DESCRIPTION, percentiles = {0.5, 0.9, 0.95, 0.99})
+	@GetMapping("/getNin/{rid}")
+	public ResponseEntity<Object> getNIN(@PathVariable("rid") String rid)
+			throws BaseCheckedException, IOException {
+		logger.debug("DownloadCardController::getNIN()::entry");
+		try {
+			requestValidator.validateAidStatusIndividualId(rid);
+			ResponseWrapper<Object> response = downloadCardService.getNINFromIndividualId(rid);
+			return ResponseEntity.ok(response);
+		} catch (ResidentServiceException | InvalidInputException e) {
+			auditUtil.setAuditRequestDto(AuditEnum.AID_STAGE_FAILURE);
+			logger.error(LoggerFileConstant.SESSIONID.toString(), LoggerFileConstant.APPLICATIONID.toString(),
+					LoggerFileConstant.APPLICATIONID.toString(), ExceptionUtils.getStackTrace(e));
+			e.setMetadata(Map.of(ResidentConstants.REQ_RES_ID,
+					environment.getProperty(ResidentConstants.CHECK_STATUS_INDIVIDUAL_ID)));
+			throw e;
+		}
+	}
 }
